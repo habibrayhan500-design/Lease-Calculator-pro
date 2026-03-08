@@ -98,39 +98,91 @@ export function exportToCSV(schedule: AmortizationRow[]): string {
 
 export function exportToExcel(schedule: AmortizationRow[], summary: LeaseSummary): void {
   import('xlsx').then((XLSX) => {
-    const headers = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
-    const data = schedule.map(r => [
-      r.month,
-      Number(r.openingBalance.toFixed(2)),
-      Number(r.interestExpense.toFixed(2)),
-      Number(r.leasePayment.toFixed(2)),
-      Number(r.principalReduction.toFixed(2)),
-      Number(r.closingBalance.toFixed(2)),
-      Number(r.rouAssetOpening.toFixed(2)),
-      Number(r.depreciationExpense.toFixed(2)),
-      Number(r.rouAssetClosing.toFixed(2)),
-      Number(r.totalExpense.toFixed(2)),
-    ]);
-
-    const summaryData = [
+    // Summary sheet data
+    const summaryRows = [
       ['Lease Amortization Summary'],
       [],
+      ['Metric', 'Value'],
       ['Total Lease Payments', summary.totalLeasePayments],
       ['Present Value (ROU Asset / Liability)', summary.presentValue],
       ['Total Interest Expense', summary.totalInterest],
       ['Total Depreciation', summary.totalDepreciation],
       ['Monthly Depreciation', summary.monthlyDepreciation],
-      [],
-      headers,
-      ...data,
     ];
 
-    const ws = XLSX.utils.aoa_to_sheet(summaryData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Lease Schedule');
+    // Schedule header row starts at row 1 (0-indexed)
+    const headerRow = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
+    // Cols: A=Month, B=Opening, C=Interest, D=Payment, E=Principal, F=Closing, G=ROU Open, H=Depr, I=ROU Close, J=Total Expense
 
-    // Auto-size columns
-    ws['!cols'] = headers.map(() => ({ wch: 20 }));
+    const scheduleData: any[][] = [headerRow];
+
+    const n = schedule.length;
+    const monthlyRate = n > 0 ? (summary.totalInterest > 0
+      ? schedule[0].interestExpense / schedule[0].openingBalance
+      : 0) : 0;
+    const monthlyDepr = summary.monthlyDepreciation;
+
+    for (let i = 0; i < n; i++) {
+      const row = i + 2; // Excel row (1-indexed), header is row 1, first data row is row 2
+      const r = schedule[i];
+
+      if (i === 0) {
+        // First row: seed with values, formulas reference them
+        scheduleData.push([
+          1,
+          summary.presentValue,                          // B2: Opening = PV
+          { f: `B${row}*${monthlyRate}` },               // C2: Interest = Opening * rate
+          r.leasePayment,                                // D2: Payment (constant)
+          { f: `D${row}-C${row}` },                      // E2: Principal = Payment - Interest
+          { f: `B${row}-E${row}` },                      // F2: Closing = Opening - Principal
+          summary.presentValue,                          // G2: ROU Opening = PV
+          monthlyDepr,                                   // H2: Depreciation (constant)
+          { f: `G${row}-H${row}` },                      // I2: ROU Closing = ROU Opening - Depr
+          { f: `C${row}+H${row}` },                      // J2: Total Expense = Interest + Depr
+        ]);
+      } else {
+        scheduleData.push([
+          i + 1,                                         // A: Month
+          { f: `F${row - 1}` },                          // B: Opening = prev Closing
+          { f: `B${row}*${monthlyRate}` },               // C: Interest
+          r.leasePayment,                                // D: Payment
+          { f: `D${row}-C${row}` },                      // E: Principal
+          { f: `B${row}-E${row}` },                      // F: Closing
+          { f: `I${row - 1}` },                          // G: ROU Opening = prev ROU Closing
+          monthlyDepr,                                   // H: Depreciation
+          { f: `G${row}-H${row}` },                      // I: ROU Closing
+          { f: `C${row}+H${row}` },                      // J: Total Expense
+        ]);
+      }
+    }
+
+    // Add totals row with SUM formulas
+    const lastDataRow = n + 1;
+    scheduleData.push([]);
+    const totalsRowIdx = lastDataRow + 2;
+    scheduleData.push([
+      'TOTALS',
+      '',
+      { f: `SUM(C2:C${lastDataRow})` },
+      { f: `SUM(D2:D${lastDataRow})` },
+      { f: `SUM(E2:E${lastDataRow})` },
+      '',
+      '',
+      { f: `SUM(H2:H${lastDataRow})` },
+      '',
+      { f: `SUM(J2:J${lastDataRow})` },
+    ]);
+
+    // Create workbook with two sheets
+    const wb = XLSX.utils.book_new();
+
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+    wsSummary['!cols'] = [{ wch: 38 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    const wsSchedule = XLSX.utils.aoa_to_sheet(scheduleData);
+    wsSchedule['!cols'] = headerRow.map(() => ({ wch: 20 }));
+    XLSX.utils.book_append_sheet(wb, wsSchedule, 'Amortization Schedule');
 
     XLSX.writeFile(wb, 'lease_amortization_schedule.xlsx');
   });
