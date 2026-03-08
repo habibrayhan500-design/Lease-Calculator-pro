@@ -123,8 +123,8 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
                 <TableHeader>
                   <TableRow className="bg-muted/50 hover:bg-muted/50">
                     <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Account</TableHead>
-                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Debit ($)</TableHead>
-                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Credit ($)</TableHead>
+                     <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Debit</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Credit</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
