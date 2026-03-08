@@ -89,7 +89,7 @@ const Index = () => {
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                     Monthly Amortization Schedule
                   </h3>
-                  <AmortizationTable schedule={result.schedule} />
+                  <AmortizationTable schedule={result.schedule} summary={result.summary} />
                 </div>
               </>
             )}
