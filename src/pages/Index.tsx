@@ -14,7 +14,7 @@ interface CalcInput extends LeaseInput {
 const Index = () => {
   const [result, setResult] = useState<{ schedule: AmortizationRow[]; summary: LeaseSummary } | null>(null);
 
-  const handleCalculate = (input: LeaseInput) => {
+  const handleCalculate = (input: CalcInput) => {
     setResult(generateAmortizationSchedule(input));
   };
 
