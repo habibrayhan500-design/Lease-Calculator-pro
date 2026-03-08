@@ -11,12 +11,18 @@ export interface AmortizationRow {
   leasePayment: number;
   principalReduction: number;
   closingBalance: number;
+  depreciationExpense: number;
+  rouAssetOpening: number;
+  rouAssetClosing: number;
+  totalExpense: number;
 }
 
 export interface LeaseSummary {
   totalLeasePayments: number;
   presentValue: number;
   totalInterest: number;
+  totalDepreciation: number;
+  monthlyDepreciation: number;
 }
 
 export function calculatePresentValue(monthlyPayment: number, monthlyRate: number, periods: number): number {
@@ -30,15 +36,18 @@ export function generateAmortizationSchedule(input: LeaseInput): {
 } {
   const monthlyRate = input.annualInterestRate / 100 / 12;
   const pv = calculatePresentValue(input.monthlyRent, monthlyRate, input.leasePeriodMonths);
+  const monthlyDepreciation = pv / input.leasePeriodMonths;
 
   const schedule: AmortizationRow[] = [];
   let balance = pv;
+  let rouAsset = pv;
   let totalInterest = 0;
 
   for (let i = 1; i <= input.leasePeriodMonths; i++) {
     const interest = balance * monthlyRate;
     const principal = input.monthlyRent - interest;
     const closing = Math.max(balance - principal, 0);
+    const rouClosing = Math.max(rouAsset - monthlyDepreciation, 0);
 
     schedule.push({
       month: i,
@@ -47,10 +56,15 @@ export function generateAmortizationSchedule(input: LeaseInput): {
       leasePayment: input.monthlyRent,
       principalReduction: principal,
       closingBalance: closing,
+      depreciationExpense: monthlyDepreciation,
+      rouAssetOpening: rouAsset,
+      rouAssetClosing: rouClosing,
+      totalExpense: interest + monthlyDepreciation,
     });
 
     totalInterest += interest;
     balance = closing;
+    rouAsset = rouClosing;
   }
 
   return {
@@ -59,12 +73,14 @@ export function generateAmortizationSchedule(input: LeaseInput): {
       totalLeasePayments: input.monthlyRent * input.leasePeriodMonths,
       presentValue: pv,
       totalInterest,
+      totalDepreciation: pv,
+      monthlyDepreciation,
     },
   };
 }
 
 export function exportToCSV(schedule: AmortizationRow[]): string {
-  const headers = ['Month', 'Opening Balance', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Balance'];
+  const headers = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
   const rows = schedule.map(r => [
     r.month,
     r.openingBalance.toFixed(2),
@@ -72,6 +88,10 @@ export function exportToCSV(schedule: AmortizationRow[]): string {
     r.leasePayment.toFixed(2),
     r.principalReduction.toFixed(2),
     r.closingBalance.toFixed(2),
+    r.rouAssetOpening.toFixed(2),
+    r.depreciationExpense.toFixed(2),
+    r.rouAssetClosing.toFixed(2),
+    r.totalExpense.toFixed(2),
   ].join(','));
   return [headers.join(','), ...rows].join('\n');
 }
