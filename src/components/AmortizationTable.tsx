@@ -22,11 +22,14 @@ export function AmortizationTable({ schedule }: Props) {
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
             <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground w-16">Month</TableHead>
-            <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Opening Balance</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Opening Liability</TableHead>
             <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Interest</TableHead>
             <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Payment</TableHead>
             <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Principal</TableHead>
-            <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Closing Balance</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Closing Liability</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider font-semibold text-accent-foreground text-right bg-accent/30">Depreciation</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider font-semibold text-accent-foreground text-right bg-accent/30">ROU Asset</TableHead>
+            <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Total Expense</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -38,6 +41,9 @@ export function AmortizationTable({ schedule }: Props) {
               <TableCell className="text-right">${fmt(row.leasePayment)}</TableCell>
               <TableCell className="text-right">${fmt(row.principalReduction)}</TableCell>
               <TableCell className="text-right font-semibold">${fmt(row.closingBalance)}</TableCell>
+              <TableCell className="text-right text-accent-foreground bg-accent/10">${fmt(row.depreciationExpense)}</TableCell>
+              <TableCell className="text-right bg-accent/10">${fmt(row.rouAssetClosing)}</TableCell>
+              <TableCell className="text-right font-semibold">${fmt(row.totalExpense)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

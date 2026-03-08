@@ -1,5 +1,5 @@
 import { LeaseSummary } from "@/lib/leaseCalculations";
-import { DollarSign, TrendingDown, Percent } from "lucide-react";
+import { DollarSign, TrendingDown, Percent, Building } from "lucide-react";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -9,13 +9,14 @@ interface Props {
 
 const cards = [
   { label: "Total Lease Payments", key: "totalLeasePayments" as const, icon: DollarSign },
-  { label: "Present Value (Liability)", key: "presentValue" as const, icon: TrendingDown },
-  { label: "Total Interest Paid", key: "totalInterest" as const, icon: Percent },
+  { label: "Present Value (ROU Asset / Liability)", key: "presentValue" as const, icon: TrendingDown },
+  { label: "Total Interest Expense", key: "totalInterest" as const, icon: Percent },
+  { label: "Total Depreciation", key: "totalDepreciation" as const, icon: Building },
 ];
 
 export function LeaseSummaryCards({ summary }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       {cards.map((c) => (
         <div
           key={c.key}
