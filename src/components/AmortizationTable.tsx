@@ -72,6 +72,7 @@ export function AmortizationTable({ schedule, summary }: Props) {
             ))}
           </TableBody>
         </Table>
+        </div>
       </ScrollArea>
 
       <JournalEntryDialog
