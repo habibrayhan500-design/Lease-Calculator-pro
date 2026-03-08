@@ -24,7 +24,8 @@ export function AmortizationTable({ schedule, summary }: Props) {
 
   return (
     <>
-      <ScrollArea className="h-[480px] rounded-xl border border-border">
+      <ScrollArea className="h-[480px] rounded-xl border border-border" type="always">
+        <div className="min-w-[900px]">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
@@ -71,6 +72,7 @@ export function AmortizationTable({ schedule, summary }: Props) {
             ))}
           </TableBody>
         </Table>
+        </div>
       </ScrollArea>
 
       <JournalEntryDialog
