@@ -54,14 +54,14 @@ export function AmortizationTable({ schedule, summary }: Props) {
                     {row.monthLabel}
                   </button>
                 </TableCell>
-                <TableCell className="text-right">${fmt(row.openingBalance)}</TableCell>
-                <TableCell className="text-right text-accent-foreground">${fmt(row.interestExpense)}</TableCell>
-                <TableCell className="text-right">${fmt(row.leasePayment)}</TableCell>
-                <TableCell className="text-right">${fmt(row.principalReduction)}</TableCell>
-                <TableCell className="text-right font-semibold">${fmt(row.closingBalance)}</TableCell>
-                <TableCell className="text-right text-accent-foreground bg-accent/10">${fmt(row.depreciationExpense)}</TableCell>
-                <TableCell className="text-right bg-accent/10">${fmt(row.rouAssetClosing)}</TableCell>
-                <TableCell className="text-right font-semibold">${fmt(row.totalExpense)}</TableCell>
+                <TableCell className="text-right">{fmt(row.openingBalance)}</TableCell>
+                <TableCell className="text-right text-accent-foreground">{fmt(row.interestExpense)}</TableCell>
+                <TableCell className="text-right">{fmt(row.leasePayment)}</TableCell>
+                <TableCell className="text-right">{fmt(row.principalReduction)}</TableCell>
+                <TableCell className="text-right font-semibold">{fmt(row.closingBalance)}</TableCell>
+                <TableCell className="text-right text-accent-foreground bg-accent/10">{fmt(row.depreciationExpense)}</TableCell>
+                <TableCell className="text-right bg-accent/10">{fmt(row.rouAssetClosing)}</TableCell>
+                <TableCell className="text-right font-semibold">{fmt(row.totalExpense)}</TableCell>
                 {hasPrepaid && (
                   <TableCell className={`text-right bg-primary/5 ${row.prepaidAdjustment > 0 ? "font-semibold text-primary" : "text-muted-foreground"}`}>
                     {row.prepaidAdjustment > 0 ? `$${fmt(row.prepaidAdjustment)}` : "—"}
