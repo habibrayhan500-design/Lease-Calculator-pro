@@ -70,10 +70,16 @@ const Index = () => {
                   <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Results
                   </h2>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
-                    <Download className="h-4 w-4" />
-                    Download CSV
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
+                      <Download className="h-4 w-4" />
+                      CSV
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => result && exportToExcel(result.schedule, result.summary)}>
+                      <FileSpreadsheet className="h-4 w-4" />
+                      Excel
+                    </Button>
+                  </div>
                 </div>
 
                 <LeaseSummaryCards summary={result.summary} />

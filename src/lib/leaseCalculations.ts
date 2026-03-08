@@ -95,3 +95,43 @@ export function exportToCSV(schedule: AmortizationRow[]): string {
   ].join(','));
   return [headers.join(','), ...rows].join('\n');
 }
+
+export function exportToExcel(schedule: AmortizationRow[], summary: LeaseSummary): void {
+  import('xlsx').then((XLSX) => {
+    const headers = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
+    const data = schedule.map(r => [
+      r.month,
+      Number(r.openingBalance.toFixed(2)),
+      Number(r.interestExpense.toFixed(2)),
+      Number(r.leasePayment.toFixed(2)),
+      Number(r.principalReduction.toFixed(2)),
+      Number(r.closingBalance.toFixed(2)),
+      Number(r.rouAssetOpening.toFixed(2)),
+      Number(r.depreciationExpense.toFixed(2)),
+      Number(r.rouAssetClosing.toFixed(2)),
+      Number(r.totalExpense.toFixed(2)),
+    ]);
+
+    const summaryData = [
+      ['Lease Amortization Summary'],
+      [],
+      ['Total Lease Payments', summary.totalLeasePayments],
+      ['Present Value (ROU Asset / Liability)', summary.presentValue],
+      ['Total Interest Expense', summary.totalInterest],
+      ['Total Depreciation', summary.totalDepreciation],
+      ['Monthly Depreciation', summary.monthlyDepreciation],
+      [],
+      headers,
+      ...data,
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Lease Schedule');
+
+    // Auto-size columns
+    ws['!cols'] = headers.map(() => ({ wch: 20 }));
+
+    XLSX.writeFile(wb, 'lease_amortization_schedule.xlsx');
+  });
+}
