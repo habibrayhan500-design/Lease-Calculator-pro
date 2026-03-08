@@ -3,9 +3,9 @@ import { LeaseInputPanel } from "@/components/LeaseInputPanel";
 import { LeaseSummaryCards } from "@/components/LeaseSummaryCards";
 import { AmortizationTable } from "@/components/AmortizationTable";
 import { LiabilityChart } from "@/components/LiabilityChart";
-import { generateAmortizationSchedule, exportToCSV, type LeaseInput, type AmortizationRow, type LeaseSummary } from "@/lib/leaseCalculations";
+import { generateAmortizationSchedule, exportToCSV, exportToExcel, type LeaseInput, type AmortizationRow, type LeaseSummary } from "@/lib/leaseCalculations";
 import { Button } from "@/components/ui/button";
-import { Download, BarChart3 } from "lucide-react";
+import { Download, FileSpreadsheet, BarChart3 } from "lucide-react";
 
 const Index = () => {
   const [result, setResult] = useState<{ schedule: AmortizationRow[]; summary: LeaseSummary } | null>(null);
@@ -70,10 +70,16 @@ const Index = () => {
                   <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Results
                   </h2>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
-                    <Download className="h-4 w-4" />
-                    Download CSV
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
+                      <Download className="h-4 w-4" />
+                      CSV
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => result && exportToExcel(result.schedule, result.summary)}>
+                      <FileSpreadsheet className="h-4 w-4" />
+                      Excel
+                    </Button>
+                  </div>
                 </div>
 
                 <LeaseSummaryCards summary={result.summary} />
