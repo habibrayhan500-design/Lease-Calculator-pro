@@ -41,6 +41,7 @@ export interface AmortizationRow {
   rouAssetOpening: number;
   rouAssetClosing: number;
   totalExpense: number;
+  prepaidAdjustment: number; // prepaid rent adjustment for this month
 }
 
 export interface LeaseSummary {
