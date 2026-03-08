@@ -1,5 +1,11 @@
 export type PaymentTiming = 'end' | 'beginning';
 
+export interface PrepaidRentConfig {
+  amount: number;
+  startMonth: number; // 1-indexed month number where adjustment begins
+  adjustmentMonths: number; // number of months over which to spread
+}
+
 export interface LeaseInput {
   leasePeriodMonths: number;
   monthlyRent: number;
@@ -9,6 +15,7 @@ export interface LeaseInput {
   initialDirectCosts: number;
   leaseIncentives: number;
   prepaidRent: number;
+  prepaidRentConfig?: PrepaidRentConfig;
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
