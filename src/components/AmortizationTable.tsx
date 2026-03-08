@@ -19,6 +19,7 @@ interface Props {
 }
 
 export function AmortizationTable({ schedule, summary }: Props) {
+  const [selectedRow, setSelectedRow] = useState<AmortizationRow | null>(null);
   const hasPrepaid = schedule.some(r => r.prepaidAdjustment > 0);
 
   return (
