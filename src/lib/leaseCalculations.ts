@@ -18,6 +18,7 @@ export function getMonthLabel(startDate: string | undefined, monthIndex: number)
 
 export interface AmortizationRow {
   month: number;
+  monthLabel: string;
   openingBalance: number;
   interestExpense: number;
   leasePayment: number;
