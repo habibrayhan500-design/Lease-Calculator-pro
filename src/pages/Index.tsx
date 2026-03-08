@@ -93,6 +93,8 @@ const Index = () => {
                   </h3>
                   <AmortizationTable schedule={result.schedule} summary={result.summary} />
                 </div>
+
+                <FinancialStatements schedule={result.schedule} summary={result.summary} />
               </>
             )}
           </section>
