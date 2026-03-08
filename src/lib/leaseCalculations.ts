@@ -95,9 +95,20 @@ export function generateAmortizationSchedule(input: LeaseInput): {
   let rouAsset = rouAssetInitial;
   let totalInterest = 0;
 
+  // Prepaid rent adjustment config
+  const prc = input.prepaidRentConfig;
+  const prepaidStartMonth = prc ? prc.startMonth : 1;
+  const prepaidAdjMonths = prc ? prc.adjustmentMonths : input.leasePeriodMonths;
+  const prepaidPerMonth = prepaidRent > 0
+    ? prepaidRent / prepaidAdjMonths
+    : 0;
+
   for (let i = 1; i <= input.leasePeriodMonths; i++) {
+    // Determine prepaid adjustment for this month
+    const inPrepaidRange = i >= prepaidStartMonth && i < prepaidStartMonth + prepaidAdjMonths;
+    const prepaidAdj = inPrepaidRange ? prepaidPerMonth : 0;
+
     if (timing === 'beginning') {
-      // For annuity due: payment first, then interest on remaining balance
       const balanceAfterPayment = balance - input.monthlyRent;
       const interest = Math.max(balanceAfterPayment, 0) * monthlyRate;
       const principal = input.monthlyRent - interest;
@@ -116,13 +127,13 @@ export function generateAmortizationSchedule(input: LeaseInput): {
         rouAssetOpening: rouAsset,
         rouAssetClosing: rouClosing,
         totalExpense: interest + monthlyDepreciation,
+        prepaidAdjustment: prepaidAdj,
       });
 
       totalInterest += interest;
       balance = closing;
       rouAsset = rouClosing;
     } else {
-      // Ordinary annuity: interest first, then payment
       const interest = balance * monthlyRate;
       const principal = input.monthlyRent - interest;
       const closing = Math.max(balance - principal, 0);
@@ -140,6 +151,7 @@ export function generateAmortizationSchedule(input: LeaseInput): {
         rouAssetOpening: rouAsset,
         rouAssetClosing: rouClosing,
         totalExpense: interest + monthlyDepreciation,
+        prepaidAdjustment: prepaidAdj,
       });
 
       totalInterest += interest;
