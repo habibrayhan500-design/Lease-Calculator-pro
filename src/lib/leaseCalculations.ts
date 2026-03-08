@@ -2,6 +2,18 @@ export interface LeaseInput {
   leasePeriodMonths: number;
   monthlyRent: number;
   annualInterestRate: number;
+  startDate?: string; // YYYY-MM
+}
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+export function getMonthLabel(startDate: string | undefined, monthIndex: number): string {
+  if (!startDate) return `Month ${monthIndex}`;
+  const [year, month] = startDate.split('-').map(Number);
+  const totalMonths = (month - 1) + (monthIndex - 1);
+  const m = totalMonths % 12;
+  const y = year + Math.floor(totalMonths / 12);
+  return `${MONTH_NAMES[m]} ${y}`;
 }
 
 export interface AmortizationRow {
