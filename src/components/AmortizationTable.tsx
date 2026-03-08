@@ -64,7 +64,7 @@ export function AmortizationTable({ schedule, summary }: Props) {
                 <TableCell className="text-right font-semibold">{fmt(row.totalExpense)}</TableCell>
                 {hasPrepaid && (
                   <TableCell className={`text-right bg-primary/5 ${row.prepaidAdjustment > 0 ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                    {row.prepaidAdjustment > 0 ? `$${fmt(row.prepaidAdjustment)}` : "—"}
+                    {row.prepaidAdjustment > 0 ? fmt(row.prepaidAdjustment) : "—"}
                   </TableCell>
                 )}
               </TableRow>

@@ -152,11 +152,11 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-lg border border-border p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Lease Liability (Closing)</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.closingBalance)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.closingBalance)}</p>
           </div>
           <div className="rounded-lg border border-border p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">ROU Asset (Net Book Value)</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.rouAssetClosing)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.rouAssetClosing)}</p>
           </div>
         </div>
       </DialogContent>

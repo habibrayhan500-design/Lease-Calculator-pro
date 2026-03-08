@@ -294,7 +294,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
               className="bg-panel text-panel-foreground font-mono"
             />
             <p className="text-[10px] text-muted-foreground/70">
-              ${Number(prepaidRent) > 0 && (prepaidAdjMonths || totalMonths)
+              {Number(prepaidRent) > 0 && (prepaidAdjMonths || totalMonths)
                 ? (Number(prepaidRent) / Number(prepaidAdjMonths || totalMonths)).toFixed(2)
                 : "0.00"
               } /month adjustment

@@ -32,7 +32,7 @@ export function LeaseSummaryCards({ summary }: Props) {
             <c.icon className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">{c.label}</span>
           </div>
-          <p className="text-2xl font-bold font-mono text-foreground">${fmt(c.value)}</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{fmt(c.value)}</p>
         </div>
       ))}
     </div>
