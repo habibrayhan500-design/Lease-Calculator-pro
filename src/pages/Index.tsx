@@ -3,9 +3,9 @@ import { LeaseInputPanel } from "@/components/LeaseInputPanel";
 import { LeaseSummaryCards } from "@/components/LeaseSummaryCards";
 import { AmortizationTable } from "@/components/AmortizationTable";
 import { LiabilityChart } from "@/components/LiabilityChart";
-import { generateAmortizationSchedule, exportToCSV, type LeaseInput, type AmortizationRow, type LeaseSummary } from "@/lib/leaseCalculations";
+import { generateAmortizationSchedule, exportToCSV, exportToExcel, type LeaseInput, type AmortizationRow, type LeaseSummary } from "@/lib/leaseCalculations";
 import { Button } from "@/components/ui/button";
-import { Download, BarChart3 } from "lucide-react";
+import { Download, FileSpreadsheet, BarChart3 } from "lucide-react";
 
 const Index = () => {
   const [result, setResult] = useState<{ schedule: AmortizationRow[]; summary: LeaseSummary } | null>(null);
