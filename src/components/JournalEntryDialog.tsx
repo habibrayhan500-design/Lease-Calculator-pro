@@ -40,12 +40,22 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
 
   // Initial recognition only in month 1
   if (isFirstMonth) {
+    const initialEntries: JournalEntry[] = [
+      { account: "Right-of-Use Asset", debit: summary.rouAssetInitial, credit: 0 },
+      { account: "Lease Liability", debit: 0, credit: summary.presentValue },
+    ];
+    if (summary.initialDirectCosts > 0) {
+      initialEntries.push({ account: "Cash / Bank (Initial Direct Costs)", debit: 0, credit: summary.initialDirectCosts });
+    }
+    if (summary.leaseIncentives > 0) {
+      initialEntries.push({ account: "Cash / Bank (Lease Incentive Received)", debit: summary.leaseIncentives, credit: 0 });
+    }
+    if (summary.prepaidRent > 0) {
+      initialEntries.push({ account: "Cash / Bank (Prepaid Rent)", debit: 0, credit: summary.prepaidRent });
+    }
     entries.push({
-      title: "1. Initial Recognition of Lease",
-      entries: [
-        { account: "Right-of-Use Asset", debit: summary.presentValue, credit: 0 },
-        { account: "Lease Liability", debit: 0, credit: summary.presentValue },
-      ],
+      title: "1. Initial Recognition of Lease (IFRS 16.24)",
+      entries: initialEntries,
     });
   }
 

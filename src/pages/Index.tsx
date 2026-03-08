@@ -7,14 +7,11 @@ import { generateAmortizationSchedule, exportToCSV, exportToExcel, type LeaseInp
 import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet, BarChart3 } from "lucide-react";
 
-interface CalcInput extends LeaseInput {
-  startDate: string;
-}
 
 const Index = () => {
   const [result, setResult] = useState<{ schedule: AmortizationRow[]; summary: LeaseSummary } | null>(null);
 
-  const handleCalculate = (input: CalcInput) => {
+  const handleCalculate = (input: LeaseInput) => {
     setResult(generateAmortizationSchedule(input));
   };
 

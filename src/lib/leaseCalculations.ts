@@ -1,8 +1,14 @@
+export type PaymentTiming = 'end' | 'beginning';
+
 export interface LeaseInput {
   leasePeriodMonths: number;
   monthlyRent: number;
   annualInterestRate: number;
   startDate?: string; // YYYY-MM
+  paymentTiming: PaymentTiming;
+  initialDirectCosts: number;
+  leaseIncentives: number;
+  prepaidRent: number;
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -36,11 +42,28 @@ export interface LeaseSummary {
   totalInterest: number;
   totalDepreciation: number;
   monthlyDepreciation: number;
+  rouAssetInitial: number;
+  initialDirectCosts: number;
+  leaseIncentives: number;
+  prepaidRent: number;
 }
 
-export function calculatePresentValue(monthlyPayment: number, monthlyRate: number, periods: number): number {
+/**
+ * PV of ordinary annuity (payments at end) or annuity due (payments at beginning)
+ */
+export function calculatePresentValue(
+  monthlyPayment: number,
+  monthlyRate: number,
+  periods: number,
+  timing: PaymentTiming = 'end'
+): number {
   if (monthlyRate === 0) return monthlyPayment * periods;
-  return monthlyPayment * ((1 - Math.pow(1 + monthlyRate, -periods)) / monthlyRate);
+  const pvOrdinary = monthlyPayment * ((1 - Math.pow(1 + monthlyRate, -periods)) / monthlyRate);
+  if (timing === 'beginning') {
+    // Annuity due = ordinary annuity × (1 + r)
+    return pvOrdinary * (1 + monthlyRate);
+  }
+  return pvOrdinary;
 }
 
 export function generateAmortizationSchedule(input: LeaseInput): {
@@ -48,37 +71,73 @@ export function generateAmortizationSchedule(input: LeaseInput): {
   summary: LeaseSummary;
 } {
   const monthlyRate = input.annualInterestRate / 100 / 12;
-  const pv = calculatePresentValue(input.monthlyRent, monthlyRate, input.leasePeriodMonths);
-  const monthlyDepreciation = pv / input.leasePeriodMonths;
+  const timing = input.paymentTiming || 'end';
+  const pv = calculatePresentValue(input.monthlyRent, monthlyRate, input.leasePeriodMonths, timing);
+
+  // IFRS 16 para 24: ROU Asset = Lease Liability + Initial Direct Costs + Prepaid Rent − Lease Incentives
+  const initialDirectCosts = input.initialDirectCosts || 0;
+  const leaseIncentives = input.leaseIncentives || 0;
+  const prepaidRent = input.prepaidRent || 0;
+  const rouAssetInitial = pv + initialDirectCosts + prepaidRent - leaseIncentives;
+
+  const monthlyDepreciation = rouAssetInitial / input.leasePeriodMonths;
 
   const schedule: AmortizationRow[] = [];
   let balance = pv;
-  let rouAsset = pv;
+  let rouAsset = rouAssetInitial;
   let totalInterest = 0;
 
   for (let i = 1; i <= input.leasePeriodMonths; i++) {
-    const interest = balance * monthlyRate;
-    const principal = input.monthlyRent - interest;
-    const closing = Math.max(balance - principal, 0);
-    const rouClosing = Math.max(rouAsset - monthlyDepreciation, 0);
+    if (timing === 'beginning') {
+      // For annuity due: payment first, then interest on remaining balance
+      const balanceAfterPayment = balance - input.monthlyRent;
+      const interest = Math.max(balanceAfterPayment, 0) * monthlyRate;
+      const principal = input.monthlyRent - interest;
+      const closing = Math.max(balance - principal, 0);
+      const rouClosing = Math.max(rouAsset - monthlyDepreciation, 0);
 
-    schedule.push({
-      month: i,
-      monthLabel: getMonthLabel(input.startDate, i),
-      openingBalance: balance,
-      interestExpense: interest,
-      leasePayment: input.monthlyRent,
-      principalReduction: principal,
-      closingBalance: closing,
-      depreciationExpense: monthlyDepreciation,
-      rouAssetOpening: rouAsset,
-      rouAssetClosing: rouClosing,
-      totalExpense: interest + monthlyDepreciation,
-    });
+      schedule.push({
+        month: i,
+        monthLabel: getMonthLabel(input.startDate, i),
+        openingBalance: balance,
+        interestExpense: interest,
+        leasePayment: input.monthlyRent,
+        principalReduction: principal,
+        closingBalance: closing,
+        depreciationExpense: monthlyDepreciation,
+        rouAssetOpening: rouAsset,
+        rouAssetClosing: rouClosing,
+        totalExpense: interest + monthlyDepreciation,
+      });
 
-    totalInterest += interest;
-    balance = closing;
-    rouAsset = rouClosing;
+      totalInterest += interest;
+      balance = closing;
+      rouAsset = rouClosing;
+    } else {
+      // Ordinary annuity: interest first, then payment
+      const interest = balance * monthlyRate;
+      const principal = input.monthlyRent - interest;
+      const closing = Math.max(balance - principal, 0);
+      const rouClosing = Math.max(rouAsset - monthlyDepreciation, 0);
+
+      schedule.push({
+        month: i,
+        monthLabel: getMonthLabel(input.startDate, i),
+        openingBalance: balance,
+        interestExpense: interest,
+        leasePayment: input.monthlyRent,
+        principalReduction: principal,
+        closingBalance: closing,
+        depreciationExpense: monthlyDepreciation,
+        rouAssetOpening: rouAsset,
+        rouAssetClosing: rouClosing,
+        totalExpense: interest + monthlyDepreciation,
+      });
+
+      totalInterest += interest;
+      balance = closing;
+      rouAsset = rouClosing;
+    }
   }
 
   return {
@@ -87,16 +146,21 @@ export function generateAmortizationSchedule(input: LeaseInput): {
       totalLeasePayments: input.monthlyRent * input.leasePeriodMonths,
       presentValue: pv,
       totalInterest,
-      totalDepreciation: pv,
+      totalDepreciation: rouAssetInitial,
       monthlyDepreciation,
+      rouAssetInitial,
+      initialDirectCosts,
+      leaseIncentives,
+      prepaidRent,
     },
   };
 }
 
 export function exportToCSV(schedule: AmortizationRow[]): string {
-  const headers = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
+  const headers = ['Month', 'Month Label', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
   const rows = schedule.map(r => [
     r.month,
+    r.monthLabel,
     r.openingBalance.toFixed(2),
     r.interestExpense.toFixed(2),
     r.leasePayment.toFixed(2),
@@ -112,21 +176,22 @@ export function exportToCSV(schedule: AmortizationRow[]): string {
 
 export function exportToExcel(schedule: AmortizationRow[], summary: LeaseSummary): void {
   import('xlsx').then((XLSX) => {
-    // Summary sheet data
     const summaryRows = [
-      ['Lease Amortization Summary'],
+      ['Lease Amortization Summary (IFRS 16 / ASC 842)'],
       [],
       ['Metric', 'Value'],
       ['Total Lease Payments', summary.totalLeasePayments],
-      ['Present Value (ROU Asset / Liability)', summary.presentValue],
+      ['Present Value of Lease Liability', summary.presentValue],
+      ['Initial Direct Costs', summary.initialDirectCosts],
+      ['Lease Incentives Received', summary.leaseIncentives],
+      ['Prepaid Rent', summary.prepaidRent],
+      ['ROU Asset (Initial)', summary.rouAssetInitial],
       ['Total Interest Expense', summary.totalInterest],
       ['Total Depreciation', summary.totalDepreciation],
       ['Monthly Depreciation', summary.monthlyDepreciation],
     ];
 
-    // Schedule header row starts at row 1 (0-indexed)
-    const headerRow = ['Month', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
-    // Cols: A=Month, B=Opening, C=Interest, D=Payment, E=Principal, F=Closing, G=ROU Open, H=Depr, I=ROU Close, J=Total Expense
+    const headerRow = ['Month', 'Period', 'Opening Liability', 'Interest Expense', 'Lease Payment', 'Principal Reduction', 'Closing Liability', 'ROU Asset Opening', 'Depreciation', 'ROU Asset Closing', 'Total Expense'];
 
     const scheduleData: any[][] = [headerRow];
 
@@ -137,57 +202,53 @@ export function exportToExcel(schedule: AmortizationRow[], summary: LeaseSummary
     const monthlyDepr = summary.monthlyDepreciation;
 
     for (let i = 0; i < n; i++) {
-      const row = i + 2; // Excel row (1-indexed), header is row 1, first data row is row 2
+      const row = i + 2;
       const r = schedule[i];
 
       if (i === 0) {
-        // First row: seed with values, formulas reference them
         scheduleData.push([
           1,
-          summary.presentValue,                          // B2: Opening = PV
-          { f: `B${row}*${monthlyRate}` },               // C2: Interest = Opening * rate
-          r.leasePayment,                                // D2: Payment (constant)
-          { f: `D${row}-C${row}` },                      // E2: Principal = Payment - Interest
-          { f: `B${row}-E${row}` },                      // F2: Closing = Opening - Principal
-          summary.presentValue,                          // G2: ROU Opening = PV
-          monthlyDepr,                                   // H2: Depreciation (constant)
-          { f: `G${row}-H${row}` },                      // I2: ROU Closing = ROU Opening - Depr
-          { f: `C${row}+H${row}` },                      // J2: Total Expense = Interest + Depr
+          r.monthLabel,
+          summary.presentValue,
+          { f: `C${row}*${monthlyRate}` },
+          r.leasePayment,
+          { f: `E${row}-D${row}` },
+          { f: `C${row}-F${row}` },
+          summary.rouAssetInitial,
+          monthlyDepr,
+          { f: `H${row}-I${row}` },
+          { f: `D${row}+I${row}` },
         ]);
       } else {
         scheduleData.push([
-          i + 1,                                         // A: Month
-          { f: `F${row - 1}` },                          // B: Opening = prev Closing
-          { f: `B${row}*${monthlyRate}` },               // C: Interest
-          r.leasePayment,                                // D: Payment
-          { f: `D${row}-C${row}` },                      // E: Principal
-          { f: `B${row}-E${row}` },                      // F: Closing
-          { f: `I${row - 1}` },                          // G: ROU Opening = prev ROU Closing
-          monthlyDepr,                                   // H: Depreciation
-          { f: `G${row}-H${row}` },                      // I: ROU Closing
-          { f: `C${row}+H${row}` },                      // J: Total Expense
+          i + 1,
+          r.monthLabel,
+          { f: `G${row - 1}` },
+          { f: `C${row}*${monthlyRate}` },
+          r.leasePayment,
+          { f: `E${row}-D${row}` },
+          { f: `C${row}-F${row}` },
+          { f: `J${row - 1}` },
+          monthlyDepr,
+          { f: `H${row}-I${row}` },
+          { f: `D${row}+I${row}` },
         ]);
       }
     }
 
-    // Add totals row with SUM formulas
     const lastDataRow = n + 1;
     scheduleData.push([]);
-    const totalsRowIdx = lastDataRow + 2;
     scheduleData.push([
-      'TOTALS',
-      '',
-      { f: `SUM(C2:C${lastDataRow})` },
+      'TOTALS', '', '',
       { f: `SUM(D2:D${lastDataRow})` },
       { f: `SUM(E2:E${lastDataRow})` },
+      { f: `SUM(F2:F${lastDataRow})` },
+      '', '',
+      { f: `SUM(I2:I${lastDataRow})` },
       '',
-      '',
-      { f: `SUM(H2:H${lastDataRow})` },
-      '',
-      { f: `SUM(J2:J${lastDataRow})` },
+      { f: `SUM(K2:K${lastDataRow})` },
     ]);
 
-    // Create workbook with two sheets
     const wb = XLSX.utils.book_new();
 
     const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
