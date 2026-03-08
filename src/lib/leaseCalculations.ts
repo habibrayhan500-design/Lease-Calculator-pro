@@ -64,6 +64,7 @@ export function generateAmortizationSchedule(input: LeaseInput): {
 
     schedule.push({
       month: i,
+      monthLabel: getMonthLabel(input.startDate, i),
       openingBalance: balance,
       interestExpense: interest,
       leasePayment: input.monthlyRent,
