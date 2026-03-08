@@ -100,15 +100,15 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
         <div className="grid grid-cols-3 gap-3 text-center">
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Interest</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.interestExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.interestExpense)}</p>
           </div>
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Depreciation</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.depreciationExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.depreciationExpense)}</p>
           </div>
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Expense</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.totalExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.totalExpense)}</p>
           </div>
         </div>
 
