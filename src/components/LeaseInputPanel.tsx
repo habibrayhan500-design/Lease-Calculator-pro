@@ -5,7 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Calculator } from "lucide-react";
 
 interface LeaseInputPanelProps {
-  onCalculate: (data: { leasePeriodMonths: number; monthlyRent: number; annualInterestRate: number }) => void;
+  onCalculate: (data: {
+    leasePeriodMonths: number;
+    monthlyRent: number;
+    annualInterestRate: number;
+    startDate: string; // YYYY-MM
+  }) => void;
 }
 
 export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
@@ -13,6 +18,9 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
   const [periodUnit, setPeriodUnit] = useState<"months" | "years">("months");
   const [monthlyRent, setMonthlyRent] = useState("5000");
   const [annualRate, setAnnualRate] = useState("6");
+  const now = new Date();
+  const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [startDate, setStartDate] = useState(defaultMonth);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +29,26 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       leasePeriodMonths: months,
       monthlyRent: Number(monthlyRent),
       annualInterestRate: Number(annualRate),
+      startDate,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="startDate" className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          Lease Start Month
+        </Label>
+        <Input
+          id="startDate"
+          type="month"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="bg-panel text-panel-foreground font-mono text-lg"
+          required
+        />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="period" className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           Lease Period

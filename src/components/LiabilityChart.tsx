@@ -9,7 +9,7 @@ const fmt = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits
 
 export function LiabilityChart({ schedule }: Props) {
   const data = schedule.map((r) => ({
-    month: r.month,
+    month: r.monthLabel,
     balance: Number(r.closingBalance.toFixed(2)),
   }));
 
@@ -27,11 +27,11 @@ export function LiabilityChart({ schedule }: Props) {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 89%)" />
-          <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(220, 10%, 46%)" />
+          <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke="hsl(220, 10%, 46%)" interval={Math.max(Math.floor(schedule.length / 12) - 1, 0)} />
           <YAxis tickFormatter={fmt} tick={{ fontSize: 11 }} stroke="hsl(220, 10%, 46%)" width={70} />
           <Tooltip
             formatter={(value: number) => [fmt(value), "Balance"]}
-            labelFormatter={(label) => `Month ${label}`}
+            labelFormatter={(label) => String(label)}
             contentStyle={{
               backgroundColor: "hsl(0, 0%, 100%)",
               border: "1px solid hsl(220, 14%, 89%)",
