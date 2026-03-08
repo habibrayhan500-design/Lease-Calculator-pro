@@ -11,7 +11,7 @@ import { Download, FileSpreadsheet, BarChart3 } from "lucide-react";
 const Index = () => {
   const [result, setResult] = useState<{ schedule: AmortizationRow[]; summary: LeaseSummary } | null>(null);
 
-  const handleCalculate = (input: CalcInput) => {
+  const handleCalculate = (input: LeaseInput) => {
     setResult(generateAmortizationSchedule(input));
   };
 
