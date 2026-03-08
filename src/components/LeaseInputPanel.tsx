@@ -134,7 +134,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Monthly Rent */}
       <div className="space-y-1.5">
         <Label htmlFor="rent" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Monthly Lease Payment ($)
+          Monthly Lease Payment
         </Label>
         <Input
           id="rent"
