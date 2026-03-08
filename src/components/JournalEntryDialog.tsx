@@ -100,15 +100,15 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
         <div className="grid grid-cols-3 gap-3 text-center">
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Interest</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.interestExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.interestExpense)}</p>
           </div>
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Depreciation</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.depreciationExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.depreciationExpense)}</p>
           </div>
           <div className="rounded-lg bg-muted p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Expense</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.totalExpense)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.totalExpense)}</p>
           </div>
         </div>
 
@@ -123,8 +123,8 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
                 <TableHeader>
                   <TableRow className="bg-muted/50 hover:bg-muted/50">
                     <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Account</TableHead>
-                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Debit ($)</TableHead>
-                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Credit ($)</TableHead>
+                     <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Debit</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right w-32">Credit</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -152,11 +152,11 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-lg border border-border p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Lease Liability (Closing)</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.closingBalance)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.closingBalance)}</p>
           </div>
           <div className="rounded-lg border border-border p-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">ROU Asset (Net Book Value)</p>
-            <p className="font-mono font-bold text-foreground">${fmt(row.rouAssetClosing)}</p>
+            <p className="font-mono font-bold text-foreground">{fmt(row.rouAssetClosing)}</p>
           </div>
         </div>
       </DialogContent>

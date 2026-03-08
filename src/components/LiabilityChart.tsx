@@ -5,7 +5,7 @@ interface Props {
   schedule: AmortizationRow[];
 }
 
-const fmt = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
 export function LiabilityChart({ schedule }: Props) {
   const data = schedule.map((r) => ({

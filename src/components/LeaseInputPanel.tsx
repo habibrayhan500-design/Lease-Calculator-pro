@@ -134,7 +134,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Monthly Rent */}
       <div className="space-y-1.5">
         <Label htmlFor="rent" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Monthly Lease Payment ($)
+          Monthly Lease Payment
         </Label>
         <Input
           id="rent"
@@ -206,7 +206,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Initial Direct Costs */}
       <div className="space-y-1.5">
         <Label htmlFor="idc" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Initial Direct Costs ($)
+          Initial Direct Costs
         </Label>
         <Input
           id="idc"
@@ -223,7 +223,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Lease Incentives */}
       <div className="space-y-1.5">
         <Label htmlFor="incentives" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Lease Incentives Received ($)
+          Lease Incentives Received
         </Label>
         <Input
           id="incentives"
@@ -240,7 +240,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Prepaid Rent */}
       <div className="space-y-1.5">
         <Label htmlFor="prepaid" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Prepaid Rent / Advance Payments ($)
+          Prepaid Rent / Advance Payments
         </Label>
         <Input
           id="prepaid"
@@ -294,7 +294,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
               className="bg-panel text-panel-foreground font-mono"
             />
             <p className="text-[10px] text-muted-foreground/70">
-              ${Number(prepaidRent) > 0 && (prepaidAdjMonths || totalMonths)
+              {Number(prepaidRent) > 0 && (prepaidAdjMonths || totalMonths)
                 ? (Number(prepaidRent) / Number(prepaidAdjMonths || totalMonths)).toFixed(2)
                 : "0.00"
               } /month adjustment
