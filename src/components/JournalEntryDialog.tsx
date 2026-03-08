@@ -82,7 +82,7 @@ export function JournalEntryDialog({ open, onOpenChange, row, summary, isFirstMo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <BookOpen className="h-5 w-5 text-primary" />
-            Journal Entries – Month {row.month}
+            Journal Entries – {row.monthLabel}
           </DialogTitle>
         </DialogHeader>
 

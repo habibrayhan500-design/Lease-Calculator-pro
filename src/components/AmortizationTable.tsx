@@ -45,9 +45,9 @@ export function AmortizationTable({ schedule, summary }: Props) {
                   <button
                     onClick={() => setSelectedRow(row)}
                     className="font-semibold text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary cursor-pointer transition-colors"
-                    title={`View journal entries for Month ${row.month}`}
+                    title={`View journal entries for ${row.monthLabel}`}
                   >
-                    {row.month}
+                    {row.monthLabel}
                   </button>
                 </TableCell>
                 <TableCell className="text-right">${fmt(row.openingBalance)}</TableCell>

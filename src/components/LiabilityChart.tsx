@@ -9,7 +9,7 @@ const fmt = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits
 
 export function LiabilityChart({ schedule }: Props) {
   const data = schedule.map((r) => ({
-    month: r.month,
+    month: r.monthLabel,
     balance: Number(r.closingBalance.toFixed(2)),
   }));
 
