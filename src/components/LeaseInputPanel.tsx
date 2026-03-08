@@ -240,7 +240,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Prepaid Rent */}
       <div className="space-y-1.5">
         <Label htmlFor="prepaid" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Prepaid Rent / Advance Payments ($)
+          Prepaid Rent / Advance Payments
         </Label>
         <Input
           id="prepaid"
