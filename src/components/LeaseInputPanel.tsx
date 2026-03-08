@@ -223,7 +223,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Lease Incentives */}
       <div className="space-y-1.5">
         <Label htmlFor="incentives" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Lease Incentives Received ($)
+          Lease Incentives Received
         </Label>
         <Input
           id="incentives"
