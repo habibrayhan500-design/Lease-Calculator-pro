@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calculator } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import type { PaymentTiming } from "@/lib/leaseCalculations";
+import type { PaymentTiming, PrepaidRentConfig } from "@/lib/leaseCalculations";
+import { getMonthLabel } from "@/lib/leaseCalculations";
 
 interface LeaseInputPanelProps {
   onCalculate: (data: {
@@ -16,6 +17,7 @@ interface LeaseInputPanelProps {
     initialDirectCosts: number;
     leaseIncentives: number;
     prepaidRent: number;
+    prepaidRentConfig?: PrepaidRentConfig;
   }) => void;
 }
 
@@ -31,10 +33,28 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
   const [initialDirectCosts, setInitialDirectCosts] = useState("0");
   const [leaseIncentives, setLeaseIncentives] = useState("0");
   const [prepaidRent, setPrepaidRent] = useState("0");
+  const [prepaidStartMonth, setPrepaidStartMonth] = useState("1");
+  const [prepaidAdjMonths, setPrepaidAdjMonths] = useState("");
+
+  const totalMonths = useMemo(() => {
+    return periodUnit === "years" ? Number(periodValue) * 12 : Number(periodValue);
+  }, [periodValue, periodUnit]);
+
+  // Generate month options for the dropdown
+  const monthOptions = useMemo(() => {
+    const options: { value: number; label: string }[] = [];
+    for (let i = 1; i <= totalMonths; i++) {
+      options.push({ value: i, label: getMonthLabel(startDate, i) });
+    }
+    return options;
+  }, [totalMonths, startDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const months = periodUnit === "years" ? Number(periodValue) * 12 : Number(periodValue);
+    const months = totalMonths;
+    const prepaidAmount = Number(prepaidRent);
+    const adjMonths = prepaidAdjMonths ? Number(prepaidAdjMonths) : months;
+
     onCalculate({
       leasePeriodMonths: months,
       monthlyRent: Number(monthlyRent),
@@ -43,7 +63,12 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       paymentTiming,
       initialDirectCosts: Number(initialDirectCosts),
       leaseIncentives: Number(leaseIncentives),
-      prepaidRent: Number(prepaidRent),
+      prepaidRent: prepaidAmount,
+      prepaidRentConfig: prepaidAmount > 0 ? {
+        amount: prepaidAmount,
+        startMonth: Number(prepaidStartMonth),
+        adjustmentMonths: adjMonths,
+      } : undefined,
     });
   };
 
@@ -228,6 +253,55 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
         />
         <p className="text-[10px] text-muted-foreground/70">IFRS 16.24(c) — Payments made before commencement</p>
       </div>
+
+      {/* Prepaid Rent Adjustment Period - only show if prepaid > 0 */}
+      {Number(prepaidRent) > 0 && (
+        <div className="space-y-3 rounded-lg border border-border bg-accent/20 p-3">
+          <p className="text-[10px] font-semibold text-accent-foreground uppercase tracking-wider">
+            Prepaid Rent Adjustment Schedule
+          </p>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="prepaidStart" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Adjustment Start Month
+            </Label>
+            <select
+              id="prepaidStart"
+              value={prepaidStartMonth}
+              onChange={(e) => setPrepaidStartMonth(e.target.value)}
+              className="w-full rounded-lg border border-border bg-panel text-panel-foreground font-mono text-sm px-3 py-2"
+            >
+              {monthOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label} (Month {opt.value})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="prepaidDuration" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Adjust Over (months)
+            </Label>
+            <Input
+              id="prepaidDuration"
+              type="number"
+              min="1"
+              max={totalMonths - Number(prepaidStartMonth) + 1}
+              value={prepaidAdjMonths}
+              onChange={(e) => setPrepaidAdjMonths(e.target.value)}
+              placeholder={`1–${totalMonths - Number(prepaidStartMonth) + 1}`}
+              className="bg-panel text-panel-foreground font-mono"
+            />
+            <p className="text-[10px] text-muted-foreground/70">
+              ${Number(prepaidRent) > 0 && (prepaidAdjMonths || totalMonths)
+                ? (Number(prepaidRent) / Number(prepaidAdjMonths || totalMonths)).toFixed(2)
+                : "0.00"
+              } /month adjustment
+            </p>
+          </div>
+        </div>
+      )}
 
       <Button type="submit" size="lg" className="w-full gap-2 text-base font-semibold">
         <Calculator className="h-5 w-5" />

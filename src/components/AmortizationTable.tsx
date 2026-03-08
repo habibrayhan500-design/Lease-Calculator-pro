@@ -20,6 +20,7 @@ interface Props {
 
 export function AmortizationTable({ schedule, summary }: Props) {
   const [selectedRow, setSelectedRow] = useState<AmortizationRow | null>(null);
+  const hasPrepaid = schedule.some(r => r.prepaidAdjustment > 0);
 
   return (
     <>
@@ -36,6 +37,9 @@ export function AmortizationTable({ schedule, summary }: Props) {
               <TableHead className="text-xs uppercase tracking-wider font-semibold text-accent-foreground text-right bg-accent/30">Depreciation</TableHead>
               <TableHead className="text-xs uppercase tracking-wider font-semibold text-accent-foreground text-right bg-accent/30">ROU Asset</TableHead>
               <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Total Expense</TableHead>
+              {hasPrepaid && (
+                <TableHead className="text-xs uppercase tracking-wider font-semibold text-primary text-right bg-primary/10">Prepaid Adj.</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -58,6 +62,11 @@ export function AmortizationTable({ schedule, summary }: Props) {
                 <TableCell className="text-right text-accent-foreground bg-accent/10">${fmt(row.depreciationExpense)}</TableCell>
                 <TableCell className="text-right bg-accent/10">${fmt(row.rouAssetClosing)}</TableCell>
                 <TableCell className="text-right font-semibold">${fmt(row.totalExpense)}</TableCell>
+                {hasPrepaid && (
+                  <TableCell className={`text-right bg-primary/5 ${row.prepaidAdjustment > 0 ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                    {row.prepaidAdjustment > 0 ? `$${fmt(row.prepaidAdjustment)}` : "—"}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
