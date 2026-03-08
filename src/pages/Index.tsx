@@ -4,6 +4,7 @@ import { LeaseSummaryCards } from "@/components/LeaseSummaryCards";
 import { AmortizationTable } from "@/components/AmortizationTable";
 import { LiabilityChart } from "@/components/LiabilityChart";
 import { generateAmortizationSchedule, exportToCSV, exportToExcel, type LeaseInput, type AmortizationRow, type LeaseSummary } from "@/lib/leaseCalculations";
+import { FinancialStatements } from "@/components/FinancialStatements";
 import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet, BarChart3 } from "lucide-react";
 
@@ -92,6 +93,8 @@ const Index = () => {
                   </h3>
                   <AmortizationTable schedule={result.schedule} summary={result.summary} />
                 </div>
+
+                <FinancialStatements schedule={result.schedule} summary={result.summary} />
               </>
             )}
           </section>
