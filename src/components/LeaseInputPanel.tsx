@@ -206,7 +206,7 @@ export function LeaseInputPanel({ onCalculate }: LeaseInputPanelProps) {
       {/* Initial Direct Costs */}
       <div className="space-y-1.5">
         <Label htmlFor="idc" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          Initial Direct Costs ($)
+          Initial Direct Costs
         </Label>
         <Input
           id="idc"
